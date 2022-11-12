@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <title>Weather App - Pragatheesh</title>
+  <!-- MDB icon -->
+  <link rel="icon" href="img/weather.ico" type="image/x-icon" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Google Fonts Roboto -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+  <!-- MDB -->
+  <link rel="stylesheet" href="css/mdb.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"
+    integrity="sha512-odNmoc1XJy5x1TMVMdC7EMs3IVdItLPlCeL5vSUPN2llYKMJ2eByTTAIiiuqLg+GdNr9hF6z81p27DArRFKT7A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="text/javascript">
+    function display_c() {
+      var refresh = 1000; // Refresh rate in milli seconds
+      mytime = setTimeout('display_ct()', refresh)
+    }
+
+    function display_ct() {
+      var x = new Date()
+      let timenow = x.toLocaleTimeString();
+      let datenow = x.toLocaleDateString();
+      document.getElementById('time').innerHTML = timenow;
+      document.getElementById('date').innerHTML = datenow;
+      display_c();
+    }
+  </script>
+</head>
+
+<body onload=display_ct();>
+  <!-- Section: Content -->
+
+  <!-- Section: App -->
+  <section class="">
+    <div class="row d-flex justify-content-center">
+      <div class="col-lg-6">
+        <div id="wrapper-bg" class="card text-white bg-image shadow-5-strong"
+        style="background-image: url('img/')">
+          <!-- Main current data -->
+          <div>
+            <div class="search search-wrapper">
+
+              <input type="text" id="search-feild" class="search-feild">
+              <img id="search-btn" src="./img/loupe.png" alt="" width="20px" height="20px" style="margin-top: 8px; cursor: pointer;">
+
+
+            </div>
+          </div>
+          <div class="card-header p-5 border-0">
+            <div class="text-center mb-3">
+              <p class="h2 mb-1" id="wrapper-name"></p>
+              <p class="mb-1" id="wrapper-description"></p>
+              <p class="display-1 mb-1" id="wrapper-temp"></p>
+              <span class=""><img id="wrapper-icon-today" src="" alt="">
+              </span><br><br>
+              <span class="">Pressure: <span id="wrapper-pressure"></span></span>
+              <span class="mx-2">|</span>
+              <span class="">Humidity: <span id="wrapper-humidity"></span></span> <br>
+              <br>
+              <span class="">Time: <span id="time"></span></span>
+              <span class="mx-2">|</span>
+              <span class="">Date: <span id="date"></span></span>
+              <br><br>
+              <span class="">Wind Speed: <span id="wind-speed"></span></span>
+
+            </div>
+          </div>
+
+          <!-- Daily forecast -->
+          <div class="card-body p-5 border-top border-bottom mb-2">
+            <div class="row text-center">
+              <div class="col">
+                <strong class="d-block mb-2">Tomorrow</strong>
+                <img id="wrapper-icon-tomorrow" src="" class="" alt="" />
+                <strong class="d-block" id="d1"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day1"></strong>
+                <img id="wrapper-icon-datom" src="" class="" alt="" />
+                <strong class="d-block" id="d2"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day2"></strong>
+                <img id="wrapper-icon-datom2" src="" class="" alt="" />
+                <strong class="d-block" id="d3"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day3"></strong>
+                <img id="wrapper-icon-datom3" src="" class="" alt="" />
+                <strong class="d-block" id="d4"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day4"></strong>
+                <img id="wrapper-icon-datom4" src="" class="" alt="" />
+                <strong class="d-block" id="d5"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day5"></strong>
+                <img id="wrapper-icon-datom5" src="" class="" alt="" />
+                <strong class="d-block" id="d6"></strong>
+              </div>
+
+              <div class="col">
+                <strong class="d-block mb-2" id="day6"></strong>
+                <img id="wrapper-icon-datom6" src="" class="" alt="" />
+                <strong class="d-block" id="d7"></strong>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Section: App -->
+  </div>
+
+
+  <!-- MDB -->
+  <script type="text/javascript" src="js/mdb.min.js"></script>
+  <!-- Custom scripts -->
+  <script type="text/javascript">
+    //getting user location
+    let searchBtn = document.getElementById('search-btn');
+    let searchFeild = document.getElementById('search-feild');  
+    searchBtn.addEventListener('click', function () {
+      let city = searchFeild.value;
+      if (city) {
+        getWeather(city);
+      }
+    });
+    //getting weather data
+    function getWeather(city) {
+      let apiKey = '99b23914e2316f75cf4c80885e157808';
+      let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+      axios.get(url).then(data => {
+        console.log(data.data);
+
+        let d0 = data.data.weather[0].main;
+        let winspd = data.data.wind.speed;
+        let temd0 = (data.data.main.temp-273).toFixed(2);
+        //temp0 to kelvin to celcius
+
+        // let temp0 = (temd0 - 273.15).toFixed(2);
+
+        let pd0 = data.data.main.pressure;
+        let hd0 = data.data.main.humidity;
+        let name=data.data.name;
+        console.log(name);
+
+        document.getElementById("wrapper-description").innerHTML = d0;
+        document.getElementById("wind-speed").innerHTML = winspd + " m/s";
+        document.getElementById("wrapper-temp").innerHTML = temd0 + "°C";
+        document.getElementById("wrapper-pressure").innerHTML = pd0;
+        document.getElementById("wrapper-humidity").innerHTML = hd0 + " %";
+        document.getElementById("wrapper-name").innerHTML = name;
+
+        switch (d0) {
+    case "Snow":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/snow.gif')";
+      break;
+    case "Clouds":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clouds.gif')";
+      break;
+    case "Fog":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/fog.gif')";
+      break;
+    case "Rain":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/rain.gif')";
+      break;
+    case "Clear":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Haze":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Thunderstorm":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/thunderstorm.gif')";
+      break;
+    default:
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+  }
+
+        const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        // Creating Day Finder
+        const de1 = new Date();
+        let day1 = weekday[de1.getDay() + 2];
+        document.getElementById("day1").innerHTML = day1
+
+        const de2 = new Date();
+        let day2 = weekday[de2.getDay() + 3];
+        document.getElementById("day2").innerHTML = day2
+
+        const de3 = new Date();
+        let day3 = weekday[de3.getDay() + 4];
+        document.getElementById("day3").innerHTML = day3
+
+        const de4 = new Date();
+        let day4 = weekday[de4.getDay() + 5];
+        document.getElementById("day4").innerHTML = day4
+
+        const de5 = new Date();
+        let day5 = weekday[de5.getDay() + 6];
+        document.getElementById("day5").innerHTML = day5
+
+        const de6 = new Date();
+        let day6 = weekday[de6.getDay() + 7];
+        document.getElementById("day6").innerHTML = day6
+
+        // Icons
+        let iconBaseUrl = "http://openweathermap.org/img/wn/";
+        let iconFormat = ".png";
+
+        // Today Data pic
+        let iconCodeToday = data.current.weather[0].icon;
+        let iconFullToday = iconBaseUrl + iconCodeToday + iconFormat;
+        document.getElementById("wrapper-icon-today").src = iconFullToday;
+
+        // Tomorrow Data Pic
+
+        let iconCodeTomorrow = data.daily[0].weather[0].icon;
+        let iconFullTomorrow = iconBaseUrl + iconCodeTomorrow + iconFormat;
+        document.getElementById("wrapper-icon-tomorrow").src = iconFullTomorrow;
+
+        // DayAfterTomorrow Pic
+        let iconCodedatom = data.daily[1].weather[0].icon;
+        let iconFulldatom = iconBaseUrl + iconCodedatom + iconFormat;
+        document.getElementById("wrapper-icon-datom").src = iconFulldatom;
+
+        // DayAfterTomorrow2 Pic
+        let iconCodedatom2 = data.daily[2].weather[0].icon;
+        let iconFulldatom2 = iconBaseUrl + iconCodedatom2 + iconFormat;
+        document.getElementById("wrapper-icon-datom2").src = iconFulldatom2;
+
+        // DayAfterTomorrow3 Pic
+        let iconCodedatom3 = data.daily[3].weather[0].icon;
+        let iconFulldatom3 = iconBaseUrl + iconCodedatom3 + iconFormat;
+        document.getElementById("wrapper-icon-datom3").src = iconFulldatom3;
+
+        // DayAfterTomorrow4 Pic
+        let iconCodedatom4 = data.daily[4].weather[0].icon;
+        let iconFulldatom4 = iconBaseUrl + iconCodedatom4 + iconFormat;
+        document.getElementById("wrapper-icon-datom4").src = iconFulldatom4;
+
+        // DayAfterTomorrow5 Pic
+        let iconCodedatom5 = data.daily[5].weather[0].icon;
+        let iconFulldatom5 = iconBaseUrl + iconCodedatom5 + iconFormat;
+        document.getElementById("wrapper-icon-datom5").src = iconFulldatom5;
+
+        // DayAfterTomorrow6 Pic
+        let iconCodedatom6 = data.daily[6].weather[0].icon;
+        let iconFulldatom6 = iconBaseUrl + iconCodedatom6 + iconFormat;
+        document.getElementById("wrapper-icon-datom6").src = iconFulldatom6;
+      })
+    }
+
+    let lat, lon, name;
+    navigator.geolocation.getCurrentPosition((res) => {
+      // console.log(res.coords.latitude);
+      let queryUrl = "https://api.openweathermap.org/data/2.5/onecall?";
+      lat = `lat=${res.coords.latitude}&`;
+      lon = `lon=${res.coords.longitude}&`;
+      let apiOptions = "&units=metric&exclude=minutely,alerts&";
+      let apiKey = "appid=c756fef86b8f016a2f32aca7a0659123";
+      let file = queryUrl + lat + lon + apiOptions + apiKey;
+      let url = `https://api.openweathermap.org/data/2.5/weather?${lat}${lon}&appid=99b23914e2316f75cf4c80885e157808`;
+      axios.get(url).then((res) => {
+        name = res.data.name;
+        fetch(file)
+          .then((response) => response.json())
+          .then((data) => {
+            // Weather main data
+            // console.log(data);
+
+
+            let d0 = data.current.weather[0].main;
+            let winspd = data.current.wind_speed;
+            let temd0 = data.current.temp;
+            let pd0 = data.current.pressure;
+            let hd0 = data.current.humidity;
+
+            console.log(name);
+
+            document.getElementById("wrapper-description").innerHTML = d0;
+            document.getElementById("wind-speed").innerHTML = winspd + " m/s";
+            document.getElementById("wrapper-temp").innerHTML = temd0 + "°C";
+            document.getElementById("wrapper-pressure").innerHTML = pd0;
+            document.getElementById("wrapper-humidity").innerHTML = hd0 + " %";
+            document.getElementById("wrapper-name").innerHTML = name;
+
+            // Weather D1 Data
+            let d1 = data.daily[0].weather[0].main;
+            let des1 = data.daily[0].weather[0].description;
+            let temd1 = data.daily[0].temp.day;
+            let pd1 = data.daily[0].pressure;
+            let hd1 = data.daily[0].humidity;
+            document.getElementById("d1").innerHTML = temd1 + " °C";
+
+
+            // console.log(d1);
+            // console.log(des1);
+            // console.log(temd1);
+            // console.log(pd1);
+            // console.log(hd1);
+
+            // Weather D2 Data
+            let d2 = data.daily[1].weather[0].main;
+            let des2 = data.daily[1].weather[0].description;
+            let temd2 = data.daily[1].temp.day;
+            let pd2 = data.daily[1].pressure;
+            let hd2 = data.daily[1].humidity;
+
+            document.getElementById("d2").innerHTML = temd2 + " °C";
+            // console.log(d2);
+            // console.log(des2);
+            // console.log(temd2);
+            // console.log(pd2);
+            // console.log(hd2);
+
+            // Weather D3 Data
+            let d3 = data.daily[2].weather[0].main;
+            let des3 = data.daily[2].weather[0].description;
+            let temd3 = data.daily[2].temp.day;
+            let pd3 = data.daily[2].pressure;
+            let hd3 = data.daily[2].humidity;
+
+            document.getElementById("d3").innerHTML = temd3 + " °C";
+            // console.log(d3);
+            // console.log(des3);
+            // console.log(temd3);
+            // console.log(pd3);
+            // console.log(hd3);
+
+            // Weather D4 Data
+            let d4 = data.daily[3].weather[0].main;
+            let des4 = data.daily[3].weather[0].description;
+            let temd4 = data.daily[3].temp.day;
+            let pd4 = data.daily[3].pressure;
+            let hd4 = data.daily[3].humidity;
+
+            document.getElementById("d4").innerHTML = temd4 + " °C";
+            // console.log(d4);
+            // console.log(des4);
+            // console.log(temd4);
+            // console.log(pd4);
+            // console.log(hd4);
+
+            // Weather D5 Data
+            let d5 = data.daily[4].weather[0].main;
+            let des5 = data.daily[4].weather[0].description;
+            let temd5 = data.daily[4].temp.day;
+            let pd5 = data.daily[4].pressure;
+            let hd5 = data.daily[4].humidity;
+
+            document.getElementById("d5").innerHTML = temd5 + " °C";
+            // console.log(d5);
+            // console.log(des5);
+            // console.log(temd5);
+            // console.log(pd5);
+            // console.log(hd5);
+
+            // Weather D6 Data
+            let d6 = data.daily[5].weather[0].main;
+            let des6 = data.daily[5].weather[0].description;
+            let temd6 = data.daily[5].temp.day;
+            let pd6 = data.daily[5].pressure;
+            let hd6 = data.daily[5].humidity;
+
+            document.getElementById("d6").innerHTML = temd6 + " °C";
+            // console.log(d6);
+            // console.log(des6);
+            // console.log(temd6);
+            // console.log(pd6);
+            // console.log(hd6);
+
+            // Weather D7 Data
+            let d7 = data.daily[6].weather[0].main;
+            let des7 = data.daily[6].weather[0].description;
+            let temd7 = data.daily[6].temp.day;
+            let pd7 = data.daily[6].pressure;
+            let hd7 = data.daily[6].humidity;
+
+            document.getElementById("d7").innerHTML = temd7 + " °C";
+            // console.log(d7);
+            // console.log(des7);
+            // console.log(temd7);
+            // console.log(pd7);
+            // console.log(hd7);
+
+            // Backgrounds
+  switch (d0) {
+    case "Snow":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/snow.gif')";
+      break;
+    case "Clouds":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clouds.gif')";
+      break;
+    case "Fog":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/fog.gif')";
+      break;
+    case "Rain":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/rain.gif')";
+      break;
+    case "Clear":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Haze":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Thunderstorm":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/thunderstorm.gif')";
+      break;
+    default:
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+  }
+
+            const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            // Creating Day Finder
+            const de1 = new Date();
+            let day1 = weekday[de1.getDay() + 2];
+            document.getElementById("day1").innerHTML = day1
+
+            const de2 = new Date();
+            let day2 = weekday[de2.getDay() + 3];
+            document.getElementById("day2").innerHTML = day2
+
+            const de3 = new Date();
+            let day3 = weekday[de3.getDay() + 4];
+            document.getElementById("day3").innerHTML = day3
+
+            const de4 = new Date();
+            let day4 = weekday[de4.getDay() + 5];
+            document.getElementById("day4").innerHTML = day4
+
+            const de5 = new Date();
+            let day5 = weekday[de5.getDay() + 6];
+            document.getElementById("day5").innerHTML = day5
+
+            const de6 = new Date();
+            let day6 = weekday[de6.getDay() + 7];
+            document.getElementById("day6").innerHTML = day6
+
+            // Icons
+            let iconBaseUrl = "http://openweathermap.org/img/wn/";
+            let iconFormat = ".png";
+
+            // Today Data pic
+            let iconCodeToday = data.current.weather[0].icon;
+            let iconFullToday = iconBaseUrl + iconCodeToday + iconFormat;
+            document.getElementById("wrapper-icon-today").src = iconFullToday;
+
+            // Tomorrow Data Pic
+
+            let iconCodeTomorrow = data.daily[0].weather[0].icon;
+            let iconFullTomorrow = iconBaseUrl + iconCodeTomorrow + iconFormat;
+            document.getElementById("wrapper-icon-tomorrow").src = iconFullTomorrow;
+
+            // DayAfterTomorrow Pic
+            let iconCodedatom = data.daily[1].weather[0].icon;
+            let iconFulldatom = iconBaseUrl + iconCodedatom + iconFormat;
+            document.getElementById("wrapper-icon-datom").src = iconFulldatom;
+
+            // DayAfterTomorrow2 Pic
+            let iconCodedatom2 = data.daily[2].weather[0].icon;
+            let iconFulldatom2 = iconBaseUrl + iconCodedatom2 + iconFormat;
+            document.getElementById("wrapper-icon-datom2").src = iconFulldatom2;
+
+            // DayAfterTomorrow3 Pic
+            let iconCodedatom3 = data.daily[3].weather[0].icon;
+            let iconFulldatom3 = iconBaseUrl + iconCodedatom3 + iconFormat;
+            document.getElementById("wrapper-icon-datom3").src = iconFulldatom3;
+
+            // DayAfterTomorrow4 Pic
+            let iconCodedatom4 = data.daily[4].weather[0].icon;
+            let iconFulldatom4 = iconBaseUrl + iconCodedatom4 + iconFormat;
+            document.getElementById("wrapper-icon-datom4").src = iconFulldatom4;
+
+            // DayAfterTomorrow5 Pic
+            let iconCodedatom5 = data.daily[5].weather[0].icon;
+            let iconFulldatom5 = iconBaseUrl + iconCodedatom5 + iconFormat;
+            document.getElementById("wrapper-icon-datom5").src = iconFulldatom5;
+
+            // DayAfterTomorrow6 Pic
+            let iconCodedatom6 = data.daily[6].weather[0].icon;
+            let iconFulldatom6 = iconBaseUrl + iconCodedatom6 + iconFormat;
+            document.getElementById("wrapper-icon-datom6").src = iconFulldatom6;
+          });
+      });
+
+
+    }, (err) => {
+      console.log(err);
+      let queryUrl = "https://api.openweathermap.org/data/2.5/onecall?";
+      let lat = "lat=28.7041&";
+      let lon = "lon=77.1025&";
+      let apiOptions = "&units=metric&exclude=minutely,alerts&";
+      let apiKey = "appid=c756fef86b8f016a2f32aca7a0659123";
+      let file = queryUrl + lat + lon + apiOptions + apiKey;
+      fetch(file)
+        .then((response) => response.json())
+        .then((data) => {
+          // Weather main data
+          console.log(data);
+
+          let d0 = data.current.weather[0].main;
+          let winspd = data.current.wind_speed;
+          let temd0 = data.current.temp;
+          let pd0 = data.current.pressure;
+          let hd0 = data.current.humidity;
+          let name = "Delhi";
+
+          document.getElementById("wrapper-description").innerHTML = d0;
+          document.getElementById("wind-speed").innerHTML = winspd + " m/s";
+          document.getElementById("wrapper-temp").innerHTML = temd0 + "°C";
+          document.getElementById("wrapper-pressure").innerHTML = pd0;
+          document.getElementById("wrapper-humidity").innerHTML = hd0 + " %";
+          document.getElementById("wrapper-name").innerHTML = name;
+
+          // Weather D1 Data
+          let d1 = data.daily[0].weather[0].main;
+          let des1 = data.daily[0].weather[0].description;
+          let temd1 = data.daily[0].temp.day;
+          let pd1 = data.daily[0].pressure;
+          let hd1 = data.daily[0].humidity;
+          document.getElementById("d1").innerHTML = temd1 + " °C";
+
+
+          // console.log(d1);
+          // console.log(des1);
+          // console.log(temd1);
+          // console.log(pd1);
+          // console.log(hd1);
+
+          // Weather D2 Data
+          let d2 = data.daily[1].weather[0].main;
+          let des2 = data.daily[1].weather[0].description;
+          let temd2 = data.daily[1].temp.day;
+          let pd2 = data.daily[1].pressure;
+          let hd2 = data.daily[1].humidity;
+
+          document.getElementById("d2").innerHTML = temd2 + " °C";
+          // console.log(d2);
+          // console.log(des2);
+          // console.log(temd2);
+          // console.log(pd2);
+          // console.log(hd2);
+
+          // Weather D3 Data
+          let d3 = data.daily[2].weather[0].main;
+          let des3 = data.daily[2].weather[0].description;
+          let temd3 = data.daily[2].temp.day;
+          let pd3 = data.daily[2].pressure;
+          let hd3 = data.daily[2].humidity;
+
+          document.getElementById("d3").innerHTML = temd3 + " °C";
+          // console.log(d3);
+          // console.log(des3);
+          // console.log(temd3);
+          // console.log(pd3);
+          // console.log(hd3);
+
+          // Weather D4 Data
+          let d4 = data.daily[3].weather[0].main;
+          let des4 = data.daily[3].weather[0].description;
+          let temd4 = data.daily[3].temp.day;
+          let pd4 = data.daily[3].pressure;
+          let hd4 = data.daily[3].humidity;
+
+          document.getElementById("d4").innerHTML = temd4 + " °C";
+          // console.log(d4);
+          // console.log(des4);
+          // console.log(temd4);
+          // console.log(pd4);
+          // console.log(hd4);
+
+          // Weather D5 Data
+          let d5 = data.daily[4].weather[0].main;
+          let des5 = data.daily[4].weather[0].description;
+          let temd5 = data.daily[4].temp.day;
+          let pd5 = data.daily[4].pressure;
+          let hd5 = data.daily[4].humidity;
+
+          document.getElementById("d5").innerHTML = temd5 + " °C";
+          // console.log(d5);
+          // console.log(des5);
+          // console.log(temd5);
+          // console.log(pd5);
+          // console.log(hd5);
+
+          // Weather D6 Data
+          let d6 = data.daily[5].weather[0].main;
+          let des6 = data.daily[5].weather[0].description;
+          let temd6 = data.daily[5].temp.day;
+          let pd6 = data.daily[5].pressure;
+          let hd6 = data.daily[5].humidity;
+
+          document.getElementById("d6").innerHTML = temd6 + " °C";
+          // console.log(d6);
+          // console.log(des6);
+          // console.log(temd6);
+          // console.log(pd6);
+          // console.log(hd6);
+
+          // Weather D7 Data
+          let d7 = data.daily[6].weather[0].main;
+          let des7 = data.daily[6].weather[0].description;
+          let temd7 = data.daily[6].temp.day;
+          let pd7 = data.daily[6].pressure;
+          let hd7 = data.daily[6].humidity;
+
+          document.getElementById("d7").innerHTML = temd7 + " °C";
+          // console.log(d7);
+          // console.log(des7);
+          // console.log(temd7);
+          // console.log(pd7);
+          // console.log(hd7);
+
+          // Backgrounds
+  switch (d0) {
+    case "Snow":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/snow.gif')";
+      break;
+    case "Clouds":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clouds.gif')";
+      break;
+    case "Fog":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/fog.gif')";
+      break;
+    case "Rain":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/rain.gif')";
+      break;
+    case "Clear":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Thunderstorm":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/thunderstorm.gif')";
+      break;
+    default:
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+  }
+
+          const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          // Creating Day Finder
+          const de1 = new Date();
+          let day1 = weekday[de1.getDay() + 2];
+          document.getElementById("day1").innerHTML = day1
+
+          const de2 = new Date();
+          let day2 = weekday[de2.getDay() + 3];
+          document.getElementById("day2").innerHTML = day2
+
+          const de3 = new Date();
+          let day3 = weekday[de3.getDay() + 4];
+          document.getElementById("day3").innerHTML = day3
+
+          const de4 = new Date();
+          let day4 = weekday[de4.getDay() + 5];
+          document.getElementById("day4").innerHTML = day4
+
+          const de5 = new Date();
+          let day5 = weekday[de5.getDay() + 6];
+          document.getElementById("day5").innerHTML = day5
+
+          const de6 = new Date();
+          let day6 = weekday[de6.getDay() + 7];
+          document.getElementById("day6").innerHTML = day6
+
+          // Icons
+          let iconBaseUrl = "http://openweathermap.org/img/wn/";
+          let iconFormat = ".png";
+
+          // Today Data pic
+          let iconCodeToday = data.current.weather[0].icon;
+          let iconFullToday = iconBaseUrl + iconCodeToday + iconFormat;
+          document.getElementById("wrapper-icon-today").src = iconFullToday;
+
+          // Tomorrow Data Pic
+
+          let iconCodeTomorrow = data.daily[0].weather[0].icon;
+          let iconFullTomorrow = iconBaseUrl + iconCodeTomorrow + iconFormat;
+          document.getElementById("wrapper-icon-tomorrow").src = iconFullTomorrow;
+
+          // DayAfterTomorrow Pic
+          let iconCodedatom = data.daily[1].weather[0].icon;
+          let iconFulldatom = iconBaseUrl + iconCodedatom + iconFormat;
+          document.getElementById("wrapper-icon-datom").src = iconFulldatom;
+
+          // DayAfterTomorrow2 Pic
+          let iconCodedatom2 = data.daily[2].weather[0].icon;
+          let iconFulldatom2 = iconBaseUrl + iconCodedatom2 + iconFormat;
+          document.getElementById("wrapper-icon-datom2").src = iconFulldatom2;
+
+          // DayAfterTomorrow3 Pic
+          let iconCodedatom3 = data.daily[3].weather[0].icon;
+          let iconFulldatom3 = iconBaseUrl + iconCodedatom3 + iconFormat;
+          document.getElementById("wrapper-icon-datom3").src = iconFulldatom3;
+
+          // DayAfterTomorrow4 Pic
+          let iconCodedatom4 = data.daily[4].weather[0].icon;
+          let iconFulldatom4 = iconBaseUrl + iconCodedatom4 + iconFormat;
+          document.getElementById("wrapper-icon-datom4").src = iconFulldatom4;
+
+          // DayAfterTomorrow5 Pic
+          let iconCodedatom5 = data.daily[5].weather[0].icon;
+          let iconFulldatom5 = iconBaseUrl + iconCodedatom5 + iconFormat;
+          document.getElementById("wrapper-icon-datom5").src = iconFulldatom5;
+
+          // DayAfterTomorrow6 Pic
+          let iconCodedatom6 = data.daily[6].weather[0].icon;
+          let iconFulldatom6 = iconBaseUrl + iconCodedatom6 + iconFormat;
+          document.getElementById("wrapper-icon-datom6").src = iconFulldatom6;
+        });
+
+        
+        // Backgrounds
+  switch (d0) {
+    case "Snow":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/snow.gif')";
+      break;
+    case "Clouds":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clouds.gif')";
+      break;
+    case "Fog":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/fog.gif')";
+      break;
+    case "Rain":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/rain.gif')";
+      break;
+    case "Clear":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+    case "Thunderstorm":
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/thunderstorm.gif')";
+      break;
+    default:
+      document.getElementById("wrapper-bg").style.backgroundImage =
+        "url('https://mdbgo.io/ascensus/mdb-advanced/img/clear.gif')";
+      break;
+  }
+    });
+    
+  </script>
+</body>
+<style>
+  .search-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+
+  }
+
+
+
+  .search-feild {
+    outline: none;
+    border: 0;
+    background-color: rgba(255, 255, 255, .5);
+    border-radius: .5rem;
+    margin-right: .5rem;
+    margin-left: .5rem;
+    padding: .3rem;
+  }
+
+  .search-btn{
+    margin-top: 20px;
+    margin-bottom: auto;
+    
+  }
+
+</style>
+
+</html>
